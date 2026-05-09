@@ -14,6 +14,7 @@ type Book = {
   notes?: string | null;
   price?: number | null;
 };
+type BookEditState = Record<number, { open: boolean; location: string; stock: string; price: string; notes: string; saving: boolean }>;
 
 type Dashboard = {
   totalBooks: number;
@@ -101,6 +102,7 @@ export default function Home() {
   const [scanQueue, setScanQueue] = useState<ScanDraft[]>([]);
   const [scanError, setScanError] = useState("");
   const [scanningFile, setScanningFile] = useState(false);
+  const [bookEdit, setBookEdit] = useState<BookEditState>({});
 
   const hasStockLabel = useMemo(
     () =>
@@ -232,6 +234,50 @@ export default function Home() {
   async function removeScan(scanId: number) {
     await fetch(`/api/scans/${scanId}`, { method: "DELETE" });
     await loadScanQueue();
+  }
+
+  function toggleBookEdit(book: Book) {
+    setBookEdit((prev) => {
+      const current = prev[book.id];
+      if (current?.open) {
+        return { ...prev, [book.id]: { ...current, open: false } };
+      }
+      return {
+        ...prev,
+        [book.id]: {
+          open: true,
+          location: book.location,
+          stock: String(book.stock),
+          price: book.price?.toString() ?? "",
+          notes: book.notes ?? "",
+          saving: false,
+        },
+      };
+    });
+  }
+
+  async function saveBookEdit(bookId: number) {
+    const edit = bookEdit[bookId];
+    if (!edit) return;
+    setBookEdit((prev) => ({ ...prev, [bookId]: { ...edit, saving: true } }));
+    const payload = {
+      id: bookId,
+      location: edit.location,
+      stock: Number(edit.stock) || 0,
+      price: edit.price.trim() ? Number(edit.price) : null,
+      notes: edit.notes,
+    };
+    const response = await fetch("/api/books", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (response.ok) {
+      await Promise.all([loadBooks(query), loadDashboard()]);
+      setBookEdit((prev) => ({ ...prev, [bookId]: { ...edit, open: false, saving: false } }));
+      return;
+    }
+    setBookEdit((prev) => ({ ...prev, [bookId]: { ...edit, saving: false } }));
   }
 
   async function scanFromImageFile(file: File) {
@@ -518,6 +564,44 @@ export default function Home() {
               <Tag>Ubicacion: {book.location}</Tag>
               {book.price ? <Tag>Precio: ${book.price.toLocaleString("es-AR")}</Tag> : null}
             </div>
+            <button
+              onClick={() => toggleBookEdit(book)}
+              className="mt-3 rounded-xl border border-stone-200 bg-stone-50 px-3 py-2 text-xs font-bold"
+            >
+              {bookEdit[book.id]?.open ? "Cerrar edicion" : "Editar stock/ubicacion/precio"}
+            </button>
+            {bookEdit[book.id]?.open ? (
+              <div className="mt-3 grid gap-2 rounded-xl border border-stone-200 p-3">
+                <Input
+                  label="Ubicacion"
+                  value={bookEdit[book.id]?.location ?? ""}
+                  onChange={(value) => setBookEdit((prev) => ({ ...prev, [book.id]: { ...prev[book.id], location: value } }))}
+                />
+                <div className="grid grid-cols-2 gap-2">
+                  <Input
+                    label="Stock"
+                    value={bookEdit[book.id]?.stock ?? ""}
+                    onChange={(value) => setBookEdit((prev) => ({ ...prev, [book.id]: { ...prev[book.id], stock: value } }))}
+                  />
+                  <Input
+                    label="Precio"
+                    value={bookEdit[book.id]?.price ?? ""}
+                    onChange={(value) => setBookEdit((prev) => ({ ...prev, [book.id]: { ...prev[book.id], price: value } }))}
+                  />
+                </div>
+                <Input
+                  label="Notas"
+                  value={bookEdit[book.id]?.notes ?? ""}
+                  onChange={(value) => setBookEdit((prev) => ({ ...prev, [book.id]: { ...prev[book.id], notes: value } }))}
+                />
+                <button
+                  onClick={() => saveBookEdit(book.id)}
+                  className="rounded-xl bg-emerald-600 px-3 py-2 text-sm font-bold text-white"
+                >
+                  {bookEdit[book.id]?.saving ? "Guardando..." : "Guardar cambios"}
+                </button>
+              </div>
+            ) : null}
           </article>
         ))}
       </section>

@@ -52,6 +52,27 @@ export async function POST(request: NextRequest) {
   }
 }
 
+export async function PATCH(request: NextRequest) {
+  try {
+    const body = await request.json();
+    if (!body.id) {
+      return NextResponse.json({ error: "Id requerido" }, { status: 400 });
+    }
+    const updated = await prisma.book.update({
+      where: { id: Number(body.id) },
+      data: {
+        location: typeof body.location === "string" ? body.location : undefined,
+        stock: typeof body.stock === "number" ? body.stock : undefined,
+        notes: typeof body.notes === "string" ? body.notes : undefined,
+        price: typeof body.price === "number" ? body.price : body.price === null ? null : undefined,
+      },
+    });
+    return NextResponse.json(updated);
+  } catch (error) {
+    return NextResponse.json({ error: "No se pudo actualizar", detail: error }, { status: 400 });
+  }
+}
+
 export async function DELETE() {
   await prisma.book.deleteMany({});
   return NextResponse.json({ ok: true });
