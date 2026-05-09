@@ -1,0 +1,35 @@
+{
+  "name": "libreria-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "dev:https": "next dev --hostname 0.0.0.0 --experimental-https",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:seed": "node scripts/seed-db.mjs",
+    "db:setup": "npm run db:generate && npm run db:push && npm run db:seed"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.16.2",
+    "html5-qrcode": "^2.3.8",
+    "next": "16.2.6",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "babel-plugin-react-compiler": "1.0.0",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.6",
+    "prisma": "^6.16.2",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
