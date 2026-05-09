@@ -388,7 +388,7 @@ export default function Home() {
   }, [scannerOpen]);
 
   return (
-    <main className="mx-auto min-h-screen max-w-4xl bg-[radial-gradient(circle_at_top,#fff7ed,white_45%)] p-4 pb-8 text-stone-900">
+    <main className="mx-auto min-h-screen max-w-7xl bg-[radial-gradient(circle_at_top,#fff7ed,white_45%)] p-4 pb-8 text-stone-900 lg:p-6">
       <section className="rounded-3xl bg-white p-4 shadow-sm ring-1 ring-orange-100">
         <h1 className="text-2xl font-black tracking-tight">Libreria Express</h1>
         <p className="text-sm text-stone-600">Busqueda rapida, stock al instante y carga simple por ISBN.</p>
@@ -398,66 +398,56 @@ export default function Home() {
           <Kpi label="Ultimos" value={dashboard?.latestBooks.length ?? 0} />
         </div>
       </section>
-
-      <section className="mt-4 rounded-3xl bg-white p-4 shadow-sm ring-1 ring-orange-100">
-        <h2 className="text-lg font-bold">Escaneos en vivo (celular a PC)</h2>
-        <p className="mt-1 text-xs text-stone-500">Cuando escaneas desde el celu, aparece aca para completar y guardar desde PC.</p>
-        <div className="mt-3 space-y-2">
-          {scanQueue.length === 0 ? (
-            <p className="rounded-xl bg-stone-50 p-3 text-sm text-stone-600">Sin escaneos pendientes.</p>
-          ) : (
-            scanQueue.map((scan) => (
-              <div key={scan.id} className="flex items-center justify-between gap-3 rounded-xl border border-stone-200 p-3">
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-bold">{scan.title || "Sin titulo"}</p>
-                  <p className="truncate text-xs text-stone-600">
-                    {scan.isbn} {scan.author ? `- ${scan.author}` : ""}
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() =>
-                      setDraft((prev) => ({
-                        ...prev,
-                        isbn: scan.isbn,
-                        title: scan.title || "",
-                        author: scan.author || "",
-                        publisher: scan.publisher || "",
-                        coverUrl: scan.coverUrl || "",
-                      }))
-                    }
-                    className="rounded-xl bg-stone-900 px-3 py-2 text-xs font-bold text-white"
-                  >
-                    Cargar
-                  </button>
-                  <button
-                    onClick={() => removeScan(scan.id)}
-                    className="rounded-xl bg-rose-600 px-3 py-2 text-xs font-bold text-white"
-                  >
-                    Descartar
-                  </button>
-                </div>
-              </div>
-            ))
-          )}
+      <div className="mt-4 grid gap-4 lg:grid-cols-2">
+        <div className="space-y-4">
+          <section className="rounded-3xl bg-white p-4 shadow-sm ring-1 ring-orange-100">
+            <h2 className="text-lg font-bold">Escaneos en vivo (celular a PC)</h2>
+            <p className="mt-1 text-xs text-stone-500">Cuando escaneas desde el celu, aparece aca para completar y guardar desde PC.</p>
+            <div className="mt-3 max-h-80 space-y-2 overflow-y-auto pr-1">
+              {scanQueue.length === 0 ? (
+                <p className="rounded-xl bg-stone-50 p-3 text-sm text-stone-600">Sin escaneos pendientes.</p>
+              ) : (
+                scanQueue.map((scan) => (
+                  <div key={scan.id} className="flex items-center justify-between gap-3 rounded-xl border border-stone-200 p-3">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-bold">{scan.title || "Sin titulo"}</p>
+                      <p className="truncate text-xs text-stone-600">
+                        {scan.isbn} {scan.author ? `- ${scan.author}` : ""}
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() =>
+                          setDraft((prev) => ({
+                            ...prev,
+                            isbn: scan.isbn,
+                            title: scan.title || "",
+                            author: scan.author || "",
+                            publisher: scan.publisher || "",
+                            coverUrl: scan.coverUrl || "",
+                          }))
+                        }
+                        className="rounded-xl bg-stone-900 px-3 py-2 text-xs font-bold text-white"
+                      >
+                        Cargar
+                      </button>
+                      <button
+                        onClick={() => removeScan(scan.id)}
+                        className="rounded-xl bg-rose-600 px-3 py-2 text-xs font-bold text-white"
+                      >
+                        Descartar
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </section>
         </div>
-      </section>
-
-      <section className="mt-4 rounded-3xl bg-white p-4 shadow-sm ring-1 ring-orange-100">
-        <label className="text-sm font-semibold">Buscar por titulo, autor o ISBN</label>
-        <p className="mt-1 text-xs text-stone-500">Ultima actualizacion: {lastRefresh || "--:--:--"}</p>
-        <input
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder="Ej: Borges, 978..., Cien anos..."
-          className="mt-2 w-full rounded-2xl border border-stone-200 px-4 py-3 text-base outline-none ring-orange-200 focus:ring"
-        />
-      </section>
-
-      <section className="mt-4 rounded-3xl bg-white p-4 shadow-sm ring-1 ring-orange-100">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold">Carga rapida</h2>
-          <div className="flex gap-2">
+        <section className="rounded-3xl bg-white p-4 shadow-sm ring-1 ring-orange-100">
+          <h2 className="text-lg font-bold">Acciones rapidas</h2>
+          <p className="mt-1 text-xs text-stone-500">Escanea desde celular o limpia datos de prueba.</p>
+          <div className="mt-3 flex flex-wrap gap-2">
             <button
               onClick={clearAllBooks}
               className="rounded-2xl bg-rose-600 px-4 py-3 text-sm font-bold text-white active:scale-[0.98]"
@@ -477,6 +467,13 @@ export default function Home() {
               {scannerOpen ? "Cerrar camara" : "Escanear libro"}
             </button>
           </div>
+        </section>
+      </div>
+
+      <section className="mt-4 rounded-3xl bg-white p-4 shadow-sm ring-1 ring-orange-100">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-bold">Carga rapida</h2>
+          <p className="text-xs text-stone-500">Formulario para completar y guardar.</p>
         </div>
         {scannerOpen && <div id="isbn-reader" className="mt-3 overflow-hidden rounded-2xl border border-stone-200 p-2" />}
         {scannerOpen && scannerTimedOut && (
@@ -501,45 +498,60 @@ export default function Home() {
         </label>
         <div id="isbn-reader-file" className="hidden" />
         {scanError ? <p className="mt-3 rounded-xl bg-rose-50 p-2 text-sm font-semibold text-rose-700">{scanError}</p> : null}
-        <div className="mt-3 grid gap-2">
-          <Input
-            label="ISBN"
-            value={draft.isbn}
-            onChange={(value) => {
-              setDraft({ ...draft, isbn: value });
-              if (scanError) setScanError("");
-            }}
-          />
-          <button
-            onClick={() => fetchByIsbn(draft.isbn)}
-            className="rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm font-semibold"
-          >
-            {loadingMetadata ? "Buscando metadata..." : "Completar desde ISBN"}
-          </button>
-          <button
-            onClick={() => fetchByIsbn(draft.isbn, true)}
-            className="rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm font-semibold"
-          >
-            Encolar ISBN manual
-          </button>
+        <div className="mt-3 grid gap-2 lg:grid-cols-2">
+          <div className="grid gap-2 lg:col-span-2 lg:grid-cols-12">
+            <div className="lg:col-span-6">
+              <Input
+                label="ISBN"
+                value={draft.isbn}
+                onChange={(value) => {
+                  setDraft({ ...draft, isbn: value });
+                  if (scanError) setScanError("");
+                }}
+              />
+            </div>
+            <button
+              onClick={() => fetchByIsbn(draft.isbn)}
+              className="self-end rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm font-semibold lg:col-span-3"
+            >
+              {loadingMetadata ? "Buscando..." : "Completar ISBN"}
+            </button>
+            <button
+              onClick={() => fetchByIsbn(draft.isbn, true)}
+              className="self-end rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm font-semibold lg:col-span-3"
+            >
+              Encolar ISBN
+            </button>
+          </div>
           <Input label="Titulo" value={draft.title} onChange={(value) => setDraft({ ...draft, title: value })} />
           <Input label="Autor" value={draft.author} onChange={(value) => setDraft({ ...draft, author: value })} />
           <Input label="Editorial" value={draft.publisher} onChange={(value) => setDraft({ ...draft, publisher: value })} />
           <Input label="Portada (URL)" value={draft.coverUrl} onChange={(value) => setDraft({ ...draft, coverUrl: value })} />
           <Input label="Ubicacion" value={draft.location} onChange={(value) => setDraft({ ...draft, location: value })} />
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-2 lg:col-span-2">
             <Input label="Stock" value={String(draft.stock)} onChange={(value) => setDraft({ ...draft, stock: Number(value) || 0 })} />
             <Input label="Precio (opcional)" value={draft.price} onChange={(value) => setDraft({ ...draft, price: value })} />
           </div>
           <Input label="Notas" value={draft.notes} onChange={(value) => setDraft({ ...draft, notes: value })} />
           <button
             onClick={saveBook}
-            className="mt-1 rounded-2xl bg-emerald-600 px-4 py-4 text-base font-extrabold text-white active:scale-[0.98]"
+            className="mt-1 rounded-2xl bg-emerald-600 px-4 py-4 text-base font-extrabold text-white active:scale-[0.98] lg:col-span-2"
           >
             {saving ? "Guardando..." : "Guardar y seguir escaneando"}
           </button>
-          {saveMessage ? <p className="text-sm font-semibold text-emerald-700">{saveMessage}</p> : null}
+          {saveMessage ? <p className="text-sm font-semibold text-emerald-700 lg:col-span-2">{saveMessage}</p> : null}
         </div>
+      </section>
+
+      <section className="mt-4 rounded-3xl bg-white p-4 shadow-sm ring-1 ring-orange-100">
+        <label className="text-sm font-semibold">Buscar por titulo, autor o ISBN</label>
+        <p className="mt-1 text-xs text-stone-500">Ultima actualizacion: {lastRefresh || "--:--:--"}</p>
+        <input
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Ej: Borges, 978..., Cien anos..."
+          className="mt-2 w-full rounded-2xl border border-stone-200 px-4 py-3 text-base outline-none ring-orange-200 focus:ring"
+        />
       </section>
 
       <section className="mt-4 space-y-3">

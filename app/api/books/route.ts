@@ -7,9 +7,9 @@ export async function GET(request: NextRequest) {
     where: query
       ? {
           OR: [
-            { title: { contains: query } },
-            { author: { contains: query } },
-            { isbn: { contains: query } },
+            { title: { contains: query, mode: "insensitive" } },
+            { author: { contains: query, mode: "insensitive" } },
+            { isbn: { contains: query, mode: "insensitive" } },
           ],
         }
       : undefined,
